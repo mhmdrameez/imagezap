@@ -29,8 +29,7 @@ export const metadata: Metadata = {
     template: "%s · Bulk Image Resizer",
   },
   applicationName: "Bulk Image Resizer & Compressor",
-  description:
-    "Resize, compress, and convert multiple images directly in your browser. Fast, privacy-friendly, and PWA-ready.",
+  description: "Simple bulk image resize, compress, convert, and crop in your browser.",
   keywords: [
     "image resizer",
     "bulk image resizer",
@@ -58,8 +57,7 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     title: "Bulk Image Resizer & Compressor",
-    description:
-      "Resize, compress, and convert multiple images directly in your browser. Everything runs locally — your files are never uploaded.",
+    description: "Simple bulk image resize, compress, convert, and crop in your browser.",
     siteName: "Bulk Image Resizer",
     images: [
       {
@@ -73,8 +71,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Bulk Image Resizer & Compressor",
-    description:
-      "Resize, compress, and convert multiple images directly in your browser. Everything runs locally — your files are never uploaded.",
+    description: "Simple bulk image resize, compress, convert, and crop in your browser.",
     images: ["/twitter-image"],
   },
   robots: {

@@ -369,8 +369,7 @@ export default function BulkImageTool() {
             </div>
           </div>
           <p className="mt-3 max-w-3xl text-pretty text-zinc-600 dark:text-zinc-400">
-            Resize, compress, and convert multiple images right in your browser. Everything runs locally using the Canvas
-            API — your files are never uploaded.
+            Resize, compress, convert, and crop images in your browser.
           </p>
         </header>
 

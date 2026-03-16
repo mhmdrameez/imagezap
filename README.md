@@ -1,12 +1,6 @@
 ## Bulk Image Resizer & Compressor
 
-A simple web tool that lets you **resize, compress, and convert multiple images** directly in your browser.
-
-- **Batch upload**: process multiple images at once
-- **Resize**: set custom width/height (optional), keep aspect ratio, contain/cover/stretch
-- **Compress**: quality slider for JPEG/WebP
-- **Convert**: output as Original / JPEG / WebP / PNG
-- **Privacy-friendly**: uses the Canvas API locally — images are never uploaded
+Resize, compress, convert, and crop multiple images in your browser.
 
 ## Getting Started
 
