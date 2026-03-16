@@ -28,6 +28,8 @@ type OutputItem = {
   height: number;
 };
 
+const SUPPORT_URL = "https://www.buymeacoffee.com/mhmdrameez";
+
 function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes < 0) return "—";
   const units = ["B", "KB", "MB", "GB"];
@@ -323,9 +325,19 @@ export default function BulkImageTool() {
     <div className="min-h-screen bg-zinc-50 text-zinc-950 dark:bg-black dark:text-zinc-50">
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
         <header className="mb-8">
-          <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-            Bulk Image Resizer & Compressor
-          </h1>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              Bulk Image Resizer & Compressor
+            </h1>
+            <a
+              href={SUPPORT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:hover:bg-white/10 sm:w-auto"
+            >
+              Support
+            </a>
+          </div>
           <p className="mt-3 max-w-3xl text-pretty text-zinc-600 dark:text-zinc-400">
             Resize, compress, and convert multiple images right in your browser. Everything runs locally using the Canvas
             API — your files are never uploaded.
