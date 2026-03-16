@@ -1,0 +1,24 @@
+{
+  "name": "Bulk Image Resizer & Compressor",
+  "short_name": "ImageResizer",
+  "description": "Resize, compress, and convert multiple images directly in your browser. Fast, privacy-friendly, and PWA-ready.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#000000",
+  "background_color": "#f4f4f5",
+  "icons": [
+    {
+      "src": "/vercel.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/window.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
+
