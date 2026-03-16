@@ -29,6 +29,7 @@ type OutputItem = {
 };
 
 const SUPPORT_URL = "https://www.buymeacoffee.com/mhmdrameez";
+const GITHUB_URL = "https://github.com/mhmdrameez/imagezap";
 
 function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes < 0) return "—";
@@ -329,14 +330,24 @@ export default function BulkImageTool() {
             <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
               Bulk Image Resizer & Compressor
             </h1>
-            <a
-              href={SUPPORT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:hover:bg-white/10 sm:w-auto"
-            >
-              Support
-            </a>
+            <div className="grid grid-cols-1 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-2">
+              <a
+                href={SUPPORT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 sm:w-auto"
+              >
+                Buy me a coffee
+              </a>
+              <a
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:hover:bg-white/10 sm:w-auto"
+              >
+                GitHub
+              </a>
+            </div>
           </div>
           <p className="mt-3 max-w-3xl text-pretty text-zinc-600 dark:text-zinc-400">
             Resize, compress, and convert multiple images right in your browser. Everything runs locally using the Canvas
