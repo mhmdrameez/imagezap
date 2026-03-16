@@ -779,8 +779,10 @@ function CropModal(props: {
     const canvas = canvasRef.current;
     if (!canvas || !rect || !imgSize) return;
     const bounds = canvas.getBoundingClientRect();
-    const px = e.clientX - bounds.left;
-    const py = e.clientY - bounds.top;
+    const scaleX = CANVAS_W / bounds.width;
+    const scaleY = CANVAS_H / bounds.height;
+    const px = (e.clientX - bounds.left) * scaleX;
+    const py = (e.clientY - bounds.top) * scaleY;
     const mode = hitTestHandle(px, py, rect);
     if (!mode) return;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -792,8 +794,10 @@ function CropModal(props: {
     const drag = dragRef.current;
     if (!canvas || !drag || !rect || !imgSize || !view) return;
     const bounds = canvas.getBoundingClientRect();
-    const px = e.clientX - bounds.left;
-    const py = e.clientY - bounds.top;
+    const scaleX = CANVAS_W / bounds.width;
+    const scaleY = CANVAS_H / bounds.height;
+    const px = (e.clientX - bounds.left) * scaleX;
+    const py = (e.clientY - bounds.top) * scaleY;
 
     const dxi = (px - drag.startX) / view.scale;
     const dyi = (py - drag.startY) / view.scale;
