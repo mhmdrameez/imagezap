@@ -15,7 +15,10 @@ type SourceItem = {
   srcUrl: string;
   width?: number;
   height?: number;
+  crop?: CropRect;
 };
+
+type CropRect = { x: number; y: number; w: number; h: number };
 
 type OutputItem = {
   id: string;
@@ -98,6 +101,7 @@ async function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: n
 
 async function processOne(opts: {
   file: File;
+  crop?: CropRect;
   width?: number;
   height?: number;
   keepAspect: boolean;
@@ -109,10 +113,22 @@ async function processOne(opts: {
   const { file, fitMode, keepAspect, outputFormat, quality, background } = opts;
   const { bmp, width: srcW, height: srcH } = await loadImageBitmap(file);
 
+  const crop = opts.crop;
+  const baseRect = crop
+    ? {
+        sx: Math.max(0, Math.min(srcW - 1, Math.round(crop.x))),
+        sy: Math.max(0, Math.min(srcH - 1, Math.round(crop.y))),
+        sw: Math.max(1, Math.min(srcW, Math.round(crop.w))),
+        sh: Math.max(1, Math.min(srcH, Math.round(crop.h))),
+      }
+    : { sx: 0, sy: 0, sw: srcW, sh: srcH };
+  baseRect.sw = Math.max(1, Math.min(srcW - baseRect.sx, baseRect.sw));
+  baseRect.sh = Math.max(1, Math.min(srcH - baseRect.sy, baseRect.sh));
+
   const outType = outputFormat === "original" ? (file.type || "image/png") : outputFormat;
   const { targetW, targetH } = computeTargetSize({
-    srcW,
-    srcH,
+    srcW: baseRect.sw,
+    srcH: baseRect.sh,
     width: opts.width,
     height: opts.height,
     keepAspect,
@@ -135,21 +151,21 @@ async function processOne(opts: {
   }
 
   if (!keepAspect || fitMode === "stretch") {
-    ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bmp, baseRect.sx, baseRect.sy, baseRect.sw, baseRect.sh, 0, 0, canvas.width, canvas.height);
   } else if (fitMode === "contain") {
-    const scale = Math.min(canvas.width / srcW, canvas.height / srcH);
-    const dw = Math.max(1, Math.round(srcW * scale));
-    const dh = Math.max(1, Math.round(srcH * scale));
+    const scale = Math.min(canvas.width / baseRect.sw, canvas.height / baseRect.sh);
+    const dw = Math.max(1, Math.round(baseRect.sw * scale));
+    const dh = Math.max(1, Math.round(baseRect.sh * scale));
     const dx = Math.round((canvas.width - dw) / 2);
     const dy = Math.round((canvas.height - dh) / 2);
-    ctx.drawImage(bmp, 0, 0, srcW, srcH, dx, dy, dw, dh);
+    ctx.drawImage(bmp, baseRect.sx, baseRect.sy, baseRect.sw, baseRect.sh, dx, dy, dw, dh);
   } else {
-    const scale = Math.max(canvas.width / srcW, canvas.height / srcH);
-    const sw = Math.max(1, Math.round(canvas.width / scale));
-    const sh = Math.max(1, Math.round(canvas.height / scale));
-    const sx = Math.round((srcW - sw) / 2);
-    const sy = Math.round((srcH - sh) / 2);
-    ctx.drawImage(bmp, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    const scale = Math.max(canvas.width / baseRect.sw, canvas.height / baseRect.sh);
+    const dw = Math.max(1, Math.round(baseRect.sw * scale));
+    const dh = Math.max(1, Math.round(baseRect.sh * scale));
+    const dx = Math.round((canvas.width - dw) / 2);
+    const dy = Math.round((canvas.height - dh) / 2);
+    ctx.drawImage(bmp, baseRect.sx, baseRect.sy, baseRect.sw, baseRect.sh, dx, dy, dw, dh);
   }
 
   bmp.close();
@@ -188,6 +204,8 @@ export default function BulkImageTool() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [cropFor, setCropFor] = useState<SourceItem | null>(null);
 
   const sizeBefore = useMemo(() => sources.reduce((sum, s) => sum + s.size, 0), [sources]);
   const sizeAfter = useMemo(() => outputs.reduce((sum, o) => sum + o.size, 0), [outputs]);
@@ -270,6 +288,7 @@ export default function BulkImageTool() {
       try {
         const res = await processOne({
           file: src.file,
+          crop: src.crop,
           width: wNum,
           height: hNum,
           keepAspect,
@@ -561,15 +580,24 @@ export default function BulkImageTool() {
                               {s.width && s.height ? `${s.width}×${s.height}` : "—"} · {formatBytes(s.size)}
                             </p>
                           </div>
-                          {out && (
+                          <div className="flex shrink-0 items-center gap-2">
                             <button
                               type="button"
-                              onClick={() => downloadBlob(out.blob, out.name)}
-                              className="shrink-0 rounded-full bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                              onClick={() => setCropFor(s)}
+                              className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:hover:bg-white/10"
                             >
-                              Download
+                              {s.crop ? "Crop (set)" : "Crop"}
                             </button>
-                          )}
+                            {out && (
+                              <button
+                                type="button"
+                                onClick={() => downloadBlob(out.blob, out.name)}
+                                className="rounded-full bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                              >
+                                Download
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         {out && (
@@ -599,9 +627,286 @@ export default function BulkImageTool() {
           </section>
         </div>
 
+        {cropFor && (
+          <CropModal
+            item={cropFor}
+            onClose={() => setCropFor(null)}
+            onSave={(rect) => {
+              setSources((prev) => prev.map((p) => (p.id === cropFor.id ? { ...p, crop: rect } : p)));
+              setCropFor(null);
+            }}
+            onClear={() => {
+              setSources((prev) => prev.map((p) => (p.id === cropFor.id ? { ...p, crop: undefined } : p)));
+              setCropFor(null);
+            }}
+          />
+        )}
+
         <footer className="mt-10 text-center text-xs text-zinc-500 dark:text-zinc-400">
           Privacy-friendly: images stay on your device.
         </footer>
+      </div>
+    </div>
+  );
+}
+
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function CropModal(props: {
+  item: SourceItem;
+  onClose: () => void;
+  onSave: (rect: CropRect) => void;
+  onClear: () => void;
+}) {
+  const { item, onClose, onSave, onClear } = props;
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [img, setImg] = useState<HTMLImageElement | null>(null);
+  const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
+  const [rect, setRect] = useState<CropRect | null>(null);
+  const CANVAS_W = 1000;
+  const CANVAS_H = 560;
+  const dragRef = useRef<
+    | null
+    | {
+        mode: "move" | "nw" | "ne" | "sw" | "se";
+        startX: number;
+        startY: number;
+        startRect: CropRect;
+      }
+  >(null);
+
+  useEffect(() => {
+    const i = new Image();
+    i.decoding = "async";
+    i.src = item.srcUrl;
+    i.onload = () => {
+      setImg(i);
+      setImgSize({ w: i.naturalWidth, h: i.naturalHeight });
+      const initial = item.crop
+        ? item.crop
+        : {
+            x: Math.round(i.naturalWidth * 0.1),
+            y: Math.round(i.naturalHeight * 0.1),
+            w: Math.round(i.naturalWidth * 0.8),
+            h: Math.round(i.naturalHeight * 0.8),
+          };
+      setRect(initial);
+    };
+    return () => {
+      // allow GC
+    };
+  }, [item]);
+
+  const view = useMemo(() => {
+    if (!imgSize) return null;
+    const cw = CANVAS_W;
+    const ch = CANVAS_H;
+    const scale = Math.min(cw / imgSize.w, ch / imgSize.h);
+    const dw = imgSize.w * scale;
+    const dh = imgSize.h * scale;
+    const dx = (cw - dw) / 2;
+    const dy = (ch - dh) / 2;
+    return { scale, dx, dy, dw, dh };
+  }, [imgSize]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const r = rect;
+    if (!canvas || !img || !imgSize || !view || !r) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#0a0a0a";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, view.dx, view.dy, view.dw, view.dh);
+
+    const rx = view.dx + r.x * view.scale;
+    const ry = view.dy + r.y * view.scale;
+    const rw = r.w * view.scale;
+    const rh = r.h * view.scale;
+
+    // dim outside
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,0.45)";
+    ctx.fillRect(view.dx, view.dy, view.dw, view.dh);
+    ctx.clearRect(rx, ry, rw, rh);
+    ctx.restore();
+
+    // crop border
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.95)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(rx, ry, rw, rh);
+    // handles
+    const hs = 10;
+    const handles = [
+      { x: rx, y: ry },
+      { x: rx + rw, y: ry },
+      { x: rx, y: ry + rh },
+      { x: rx + rw, y: ry + rh },
+    ];
+    ctx.fillStyle = "white";
+    for (const h of handles) {
+      ctx.fillRect(h.x - hs / 2, h.y - hs / 2, hs, hs);
+    }
+    ctx.restore();
+  }, [img, imgSize, rect, view]);
+
+  function hitTestHandle(px: number, py: number, r: CropRect) {
+    if (!view) return null;
+    const rx = view.dx + r.x * view.scale;
+    const ry = view.dy + r.y * view.scale;
+    const rw = r.w * view.scale;
+    const rh = r.h * view.scale;
+    const hs = 12;
+    const spots: Array<{ mode: "nw" | "ne" | "sw" | "se"; x: number; y: number }> = [
+      { mode: "nw", x: rx, y: ry },
+      { mode: "ne", x: rx + rw, y: ry },
+      { mode: "sw", x: rx, y: ry + rh },
+      { mode: "se", x: rx + rw, y: ry + rh },
+    ];
+    for (const s of spots) {
+      if (Math.abs(px - s.x) <= hs && Math.abs(py - s.y) <= hs) return s.mode;
+    }
+    // inside rect => move
+    if (px >= rx && px <= rx + rw && py >= ry && py <= ry + rh) return "move";
+    return null;
+  }
+
+  function onPointerDown(e: React.PointerEvent) {
+    const canvas = canvasRef.current;
+    if (!canvas || !rect || !imgSize) return;
+    const bounds = canvas.getBoundingClientRect();
+    const px = e.clientX - bounds.left;
+    const py = e.clientY - bounds.top;
+    const mode = hitTestHandle(px, py, rect);
+    if (!mode) return;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = { mode, startX: px, startY: py, startRect: rect };
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    const canvas = canvasRef.current;
+    const drag = dragRef.current;
+    if (!canvas || !drag || !rect || !imgSize || !view) return;
+    const bounds = canvas.getBoundingClientRect();
+    const px = e.clientX - bounds.left;
+    const py = e.clientY - bounds.top;
+
+    const dxi = (px - drag.startX) / view.scale;
+    const dyi = (py - drag.startY) / view.scale;
+
+    const minSize = 20;
+    const next = { ...drag.startRect };
+
+    if (drag.mode === "move") {
+      next.x = drag.startRect.x + dxi;
+      next.y = drag.startRect.y + dyi;
+    } else {
+      if (drag.mode.includes("w")) {
+        const newX = drag.startRect.x + dxi;
+        const maxX = drag.startRect.x + drag.startRect.w - minSize;
+        next.x = Math.min(newX, maxX);
+        next.w = drag.startRect.w + (drag.startRect.x - next.x);
+      }
+      if (drag.mode.includes("e")) {
+        next.w = Math.max(minSize, drag.startRect.w + dxi);
+      }
+      if (drag.mode.includes("n")) {
+        const newY = drag.startRect.y + dyi;
+        const maxY = drag.startRect.y + drag.startRect.h - minSize;
+        next.y = Math.min(newY, maxY);
+        next.h = drag.startRect.h + (drag.startRect.y - next.y);
+      }
+      if (drag.mode.includes("s")) {
+        next.h = Math.max(minSize, drag.startRect.h + dyi);
+      }
+    }
+
+    next.x = clamp(next.x, 0, imgSize.w - 1);
+    next.y = clamp(next.y, 0, imgSize.h - 1);
+    next.w = clamp(next.w, minSize, imgSize.w - next.x);
+    next.h = clamp(next.h, minSize, imgSize.h - next.y);
+
+    setRect({
+      x: Math.round(next.x),
+      y: Math.round(next.y),
+      w: Math.round(next.w),
+      h: Math.round(next.h),
+    });
+  }
+
+  function onPointerUp(e: React.PointerEvent) {
+    const drag = dragRef.current;
+    if (!drag) return;
+    dragRef.current = null;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-white/10 dark:bg-zinc-950">
+        <div className="flex items-center justify-between gap-3 border-b border-zinc-200 px-4 py-3 dark:border-white/10">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">Crop</p>
+            <p className="truncate text-xs text-zinc-600 dark:text-zinc-400">{item.name}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-zinc-200 px-3 py-1 text-sm hover:bg-zinc-50 dark:border-white/10 dark:hover:bg-white/10"
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="p-4">
+          <div className="rounded-2xl bg-zinc-100 p-2 dark:bg-white/5">
+            <canvas
+              ref={canvasRef}
+              width={CANVAS_W}
+              height={CANVAS_H}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              className="h-auto w-full touch-none rounded-xl bg-black"
+            />
+          </div>
+
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-xs text-zinc-600 dark:text-zinc-400">
+              Drag inside to move. Drag corners to resize.
+              {rect && imgSize && (
+                <span className="ml-2 tabular-nums">
+                  {rect.w}×{rect.h}
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-1 gap-2 sm:flex sm:gap-2">
+              <button
+                type="button"
+                onClick={onClear}
+                className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:hover:bg-white/10"
+              >
+                Clear crop
+              </button>
+              <button
+                type="button"
+                disabled={!rect}
+                onClick={() => rect && onSave(rect)}
+                className="inline-flex items-center justify-center rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+              >
+                Save crop
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
