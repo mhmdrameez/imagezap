@@ -1,22 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Bulk Image Resizer & Compressor
+
+A simple web tool that lets you **resize, compress, and convert multiple images** directly in your browser.
+
+- **Batch upload**: process multiple images at once
+- **Resize**: set custom width/height (optional), keep aspect ratio, contain/cover/stretch
+- **Compress**: quality slider for JPEG/WebP
+- **Convert**: output as Original / JPEG / WebP / PNG
+- **Privacy-friendly**: uses the Canvas API locally — images are never uploaded
 
 ## Getting Started
 
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to use
+
+1. Upload one or more images.
+2. Choose your resize / format / quality settings.
+3. Click **Process**.
+4. Download images individually or click **Download all (ZIP)**.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
