@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type FitMode = "contain" | "cover" | "stretch";
 type OutputFormat = "original" | "image/jpeg" | "image/webp" | "image/png";
+type SizeUnit = "px" | "cm" | "in";
 
 type SourceItem = {
   id: string;
@@ -58,6 +59,18 @@ function stripExt(filename: string): string {
   const idx = filename.lastIndexOf(".");
   if (idx <= 0) return filename;
   return filename.slice(0, idx);
+}
+
+function generateId(): string {
+  try {
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+      // @ts-expect-error runtime check above
+      return crypto.randomUUID();
+    }
+  } catch {
+    // ignore and fall through to fallback
+  }
+  return `id-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
 }
 
 async function loadImageBitmap(file: File): Promise<{ bmp: ImageBitmap; width: number; height: number }> {
@@ -200,6 +213,7 @@ export default function BulkImageTool() {
 
   const [width, setWidth] = useState<string>("");
   const [height, setHeight] = useState<string>("");
+  const [sizeUnit, setSizeUnit] = useState<SizeUnit>("px");
   const [keepAspect, setKeepAspect] = useState(true);
   const [fitMode, setFitMode] = useState<FitMode>("contain");
   const [outputFormat, setOutputFormat] = useState<OutputFormat>("image/webp");
@@ -266,7 +280,7 @@ export default function BulkImageTool() {
       if (!f.type.startsWith("image/")) continue;
       const srcUrl = URL.createObjectURL(f);
       next.push({
-        id: crypto.randomUUID(),
+        id: generateId(),
         file: f,
         name: f.name,
         type: f.type,
@@ -302,8 +316,20 @@ export default function BulkImageTool() {
     setIsProcessing(true);
     setProgress({ done: 0, total: sources.length });
 
-    const wNum = width.trim() ? Number(width) : undefined;
-    const hNum = height.trim() ? Number(height) : undefined;
+    const wRaw = width.trim() ? Number(width) : undefined;
+    const hRaw = height.trim() ? Number(height) : undefined;
+
+    const dpi = 96;
+    const unitToPx = (value: number | undefined): number | undefined => {
+      if (value == null || Number.isNaN(value)) return undefined;
+      if (sizeUnit === "px") return value;
+      if (sizeUnit === "cm") return (value * dpi) / 2.54;
+      if (sizeUnit === "in") return value * dpi;
+      return value;
+    };
+
+    const wNum = unitToPx(wRaw);
+    const hNum = unitToPx(hRaw);
 
     const nextOutputs: OutputItem[] = [];
     for (let i = 0; i < sources.length; i++) {
@@ -500,7 +526,9 @@ export default function BulkImageTool() {
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="text-sm font-medium">Width (px)</label>
+                  <label className="text-sm font-medium">
+                    Width ({sizeUnit})
+                  </label>
                   <input
                     inputMode="numeric"
                     value={width}
@@ -510,7 +538,9 @@ export default function BulkImageTool() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Height (px)</label>
+                  <label className="text-sm font-medium">
+                    Height ({sizeUnit})
+                  </label>
                   <input
                     inputMode="numeric"
                     value={height}
@@ -518,6 +548,24 @@ export default function BulkImageTool() {
                     placeholder="(keep)"
                     className="mt-2 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-zinc-950"
                   />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Size unit</label>
+                <div className="mt-2 grid grid-cols-[1fr_auto] items-center gap-2">
+                  <select
+                    value={sizeUnit}
+                    onChange={(e) => setSizeUnit(e.target.value as SizeUnit)}
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-zinc-950"
+                  >
+                    <option value="px">Pixels (px)</option>
+                    <option value="cm">Centimetres (cm)</option>
+                    <option value="in">Inches (in)</option>
+                  </select>
+                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                    assumes 96&nbsp;DPI
+                  </span>
                 </div>
               </div>
 
@@ -637,11 +685,21 @@ export default function BulkImageTool() {
           </section>
 
           <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-950 sm:p-5 lg:col-span-2">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold">Images</h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                {sources.length} selected · {outputs.length} processed
-              </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold">Images</h2>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  {sources.length} selected · {outputs.length} processed
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={clearAll}
+                disabled={sources.length === 0 && outputs.length === 0}
+                className="inline-flex items-center justify-center rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:text-zinc-200 dark:hover:bg-white/10"
+              >
+                Clear all images
+              </button>
             </div>
 
             {sources.length === 0 ? (
