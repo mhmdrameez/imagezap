@@ -206,6 +206,7 @@ export default function BulkImageTool() {
   const [error, setError] = useState<string | null>(null);
 
   const [cropFor, setCropFor] = useState<SourceItem | null>(null);
+  const [showOfflineHint, setShowOfflineHint] = useState(true);
 
   const sizeBefore = useMemo(() => sources.reduce((sum, s) => sum + s.size, 0), [sources]);
   const sizeAfter = useMemo(() => outputs.reduce((sum, o) => sum + o.size, 0), [outputs]);
@@ -344,6 +345,28 @@ export default function BulkImageTool() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-950 dark:bg-black dark:text-zinc-50">
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+        {showOfflineHint && (
+          <div className="mb-4 overflow-hidden rounded-2xl bg-sky-600 text-xs text-sky-50 shadow sm:text-sm">
+            <div className="flex items-start gap-3 px-3 py-2 sm:px-4 sm:py-3">
+              <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-sky-200 sm:h-2.5 sm:w-2.5" />
+              <div className="flex-1">
+                <p className="font-semibold">Extra privacy tip</p>
+                <p className="mt-0.5 text-sky-100">
+                  For maximum security, you can briefly turn off your internet connection while resizing images. This tool
+                  works fully offline in your browser.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowOfflineHint(false)}
+                className="ml-2 rounded-full px-2 py-1 text-sky-100/80 hover:bg-sky-500/40 hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
         <header className="mb-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
