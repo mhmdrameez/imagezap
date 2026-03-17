@@ -777,58 +777,70 @@ export default function BulkImageTool() {
           </section>
         </div>
 
-        <section className="mt-10 space-y-6 rounded-2xl border border-zinc-200 bg-white p-4 text-sm shadow-sm dark:border-white/10 dark:bg-zinc-950 sm:p-6">
-          <div>
-            <h2 className="text-lg font-semibold">Check, resize & fix exam photos</h2>
-            <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-              Quickly prepare passport photos and signatures for Indian government exams like SSC, UPSC, Railway, Bank, and more.
-            </p>
+        <section className="mt-10 space-y-10 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-950 sm:p-10">
+          <div className="grid gap-10 md:grid-cols-2">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">How to resize and compress images</h2>
+              <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                Follow these simple steps to batch process your images for any requirement:
+              </p>
+              <ol className="mt-6 space-y-4">
+                <li className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-bold text-white dark:bg-white dark:text-black">1</span>
+                  <p className="text-sm"><strong>Upload:</strong> Click the upload area or drag and drop multiple images at once. Everything stays local in your browser.</p>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-bold text-white dark:bg-white dark:text-black">2</span>
+                  <p className="text-sm"><strong>Settings:</strong> Choose your target width, height, or unit (px, cm, inch). Select the output format (JPEG, WebP, PNG) and quality level.</p>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-bold text-white dark:bg-white dark:text-black">3</span>
+                  <p className="text-sm"><strong>Crop (Optional):</strong> Use the built-in crop tool on individual images to highlight specific areas or adjust aspect ratios.</p>
+                </li>
+                <li className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-bold text-white dark:bg-white dark:text-black">4</span>
+                  <p className="text-sm"><strong>Process & Download:</strong> Click 'Process' to apply changes and download everything as a ZIP file or individually.</p>
+                </li>
+              </ol>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Image specs for SSC, UPSC & Govt Exams</h2>
+              <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+                Quickly fix common image issues for Indian government exam portals:
+              </p>
+              <div className="mt-6 space-y-4">
+                <div className="rounded-xl border border-zinc-200 p-4 dark:border-white/10">
+                  <h3 className="text-sm font-bold">Passport Photo Requirements</h3>
+                  <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">Typical: 3.5cm x 4.5cm, 20KB - 50KB, JPEG format. Use our 'cm' unit and quality slider to match these exactly.</p>
+                </div>
+                <div className="rounded-xl border border-zinc-200 p-4 dark:border-white/10">
+                  <h3 className="text-sm font-bold">Signature Requirements</h3>
+                  <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">Typical: 4cm x 2cm, 10KB - 20KB. Our tool allows precise cropping to ensure your signature is clear and fits the box.</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-xl bg-zinc-50 p-3 dark:bg-white/5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                Resize • Convert • Compress
-              </p>
-              <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-200">
-                Match exact pixel sizes and file-size limits (KB) required by online exam portals.
-              </p>
-            </div>
-            <div className="rounded-xl bg-zinc-50 p-3 dark:bg:white/5 dark:bg-white/5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                Photo & signature ready
-              </p>
-              <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-200">
-                Prepare both passport photos and handwritten signatures in JPEG or PNG formats.
-              </p>
-            </div>
-            <div className="rounded-xl bg-zinc-50 p-3 dark:bg-white/5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                Privacy protected
-              </p>
-              <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-200">
-                Everything runs locally in your browser using the Canvas API — nothing is uploaded to a server.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <h3 className="text-sm font-semibold">Avoid common rejection reasons</h3>
-              <ul className="mt-2 space-y-1.5 text-xs text-zinc-600 dark:text-zinc-400">
-                <li>• Wrong pixel size or aspect ratio.</li>
-                <li>• File too large or too small in KB.</li>
-                <li>• Head cropped incorrectly after upload.</li>
-                <li>• Wrong format (PNG instead of JPEG) or blurry image.</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold">Simple workflow</h3>
-              <ul className="mt-2 space-y-1.5 text-xs text-zinc-600 dark:text-zinc-400">
-                <li>• Upload your photo and signature.</li>
-                <li>• Crop, resize and compress to the required specs.</li>
-                <li>• Download ready-to-upload files in one click.</li>
-              </ul>
+          <div className="border-t border-zinc-100 pt-10 dark:border-white/5">
+            <h2 className="text-2xl font-bold tracking-tight">Frequently Asked Questions</h2>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+              <div>
+                <h3 className="font-semibold">Is my data safe?</h3>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Yes! We use the browser's Canvas API. Your images are processed entirely on your device and are never sent to any server.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Supported formats?</h3>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">You can upload any common image format (JPEG, PNG, WebP, AVIF) and convert them to JPEG, WebP, or PNG.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Why use WebP?</h3>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">WebP provides superior lossless and lossy compression for images on the web, often resulting in much smaller file sizes than JPEG or PNG.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Can I resize in bulk?</h3>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Absolutely. Upload dozens of images at once and apply the same resize/compression settings to all of them in one click.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -849,7 +861,8 @@ export default function BulkImageTool() {
         )}
 
         <footer className="mt-10 text-center text-xs text-zinc-500 dark:text-zinc-400">
-          Privacy-friendly: images stay on your device.
+          <p>© {new Date().getFullYear()} Bulk Image Resizer & Compressor. Designed for speed and privacy.</p>
+          <p className="mt-1">All processing happens locally on your device.</p>
         </footer>
       </div>
     </div>

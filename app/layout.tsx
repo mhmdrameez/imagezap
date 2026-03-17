@@ -25,11 +25,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Bulk Image Resizer & Compressor",
-    template: "%s · Bulk Image Resizer",
+    default: "Bulk Image Resizer & Compressor - Fast, Private, In-Browser",
+    template: "%s | Bulk Image Resizer",
   },
   applicationName: "Bulk Image Resizer & Compressor",
-  description: "Simple bulk image resize, compress, convert, and crop in your browser.",
+  description: "Free bulk image resizer, compressor, and converter. Batch process images for SSC, UPSC, and government exams. 100% private — everything runs locally in your browser.",
   keywords: [
     "image resizer",
     "bulk image resizer",
@@ -37,10 +37,13 @@ export const metadata: Metadata = {
     "bulk image compressor",
     "webp converter",
     "jpeg compressor",
-    "convert images",
-    "optimize images",
-    "canvas image resize",
-    "browser image tool",
+    "SSC photo resizer",
+    "UPSC image compressor",
+    "passport photo resizer",
+    "online signature resizer",
+    "batch image process",
+    "private image resizer",
+    "no upload image tool",
   ],
   alternates: {
     canonical: "/",
@@ -48,30 +51,30 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
       { url: "/vercel.svg", type: "image/svg+xml" },
-      { url: "/window.svg", type: "image/svg+xml" },
     ],
     apple: { url: "/window.svg", type: "image/svg+xml" },
   },
   openGraph: {
     type: "website",
     url: "/",
-    title: "Bulk Image Resizer & Compressor",
-    description: "Simple bulk image resize, compress, convert, and crop in your browser.",
+    title: "Bulk Image Resizer & Compressor - Fast, Private, In-Browser",
+    description: "Resize, compress, and convert multiple images at once without uploading. Perfect for job applications and exam portals.",
     siteName: "Bulk Image Resizer",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Bulk Image Resizer & Compressor",
+        alt: "Bulk Image Resizer & Compressor Tool",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bulk Image Resizer & Compressor",
-    description: "Simple bulk image resize, compress, convert, and crop in your browser.",
+    title: "Bulk Image Resizer & Compressor - 100% Private",
+    description: "Secure, batch image processing directly in your browser. No server uploads, no privacy risks.",
     images: ["/twitter-image"],
   },
   robots: {
