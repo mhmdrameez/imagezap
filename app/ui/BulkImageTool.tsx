@@ -64,7 +64,6 @@ function stripExt(filename: string): string {
 function generateId(): string {
   try {
     if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-      // @ts-expect-error runtime check above
       return crypto.randomUUID();
     }
   } catch {
@@ -129,11 +128,11 @@ async function processOne(opts: {
   const crop = opts.crop;
   const baseRect = crop
     ? {
-        sx: Math.max(0, Math.min(srcW - 1, Math.round(crop.x))),
-        sy: Math.max(0, Math.min(srcH - 1, Math.round(crop.y))),
-        sw: Math.max(1, Math.min(srcW, Math.round(crop.w))),
-        sh: Math.max(1, Math.min(srcH, Math.round(crop.h))),
-      }
+      sx: Math.max(0, Math.min(srcW - 1, Math.round(crop.x))),
+      sy: Math.max(0, Math.min(srcH - 1, Math.round(crop.y))),
+      sw: Math.max(1, Math.min(srcW, Math.round(crop.w))),
+      sh: Math.max(1, Math.min(srcH, Math.round(crop.h))),
+    }
     : { sx: 0, sy: 0, sw: srcW, sh: srcH };
   baseRect.sw = Math.max(1, Math.min(srcW - baseRect.sx, baseRect.sw));
   baseRect.sh = Math.max(1, Math.min(srcH - baseRect.sy, baseRect.sh));
@@ -877,11 +876,11 @@ function CropModal(props: {
   const dragRef = useRef<
     | null
     | {
-        mode: "move" | "nw" | "ne" | "sw" | "se";
-        startX: number;
-        startY: number;
-        startRect: CropRect;
-      }
+      mode: "move" | "nw" | "ne" | "sw" | "se";
+      startX: number;
+      startY: number;
+      startRect: CropRect;
+    }
   >(null);
 
   useEffect(() => {
@@ -894,11 +893,11 @@ function CropModal(props: {
       const initial = item.crop
         ? item.crop
         : {
-            x: Math.round(i.naturalWidth * 0.1),
-            y: Math.round(i.naturalHeight * 0.1),
-            w: Math.round(i.naturalWidth * 0.8),
-            h: Math.round(i.naturalHeight * 0.8),
-          };
+          x: Math.round(i.naturalWidth * 0.1),
+          y: Math.round(i.naturalHeight * 0.1),
+          w: Math.round(i.naturalWidth * 0.8),
+          h: Math.round(i.naturalHeight * 0.8),
+        };
       setRect(initial);
     };
     return () => {

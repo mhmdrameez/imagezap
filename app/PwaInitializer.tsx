@@ -17,7 +17,6 @@ export default function PwaInitializer() {
         if (originalMeasure) {
           perf.measure = ((...args: Parameters<Performance["measure"]>): ReturnType<Performance["measure"]> => {
             try {
-              // @ts-expect-error TS is fine – we re-use the existing signature
               return originalMeasure(...args);
             } catch {
               // Swallow framework timing errors; they don't affect app behavior.
