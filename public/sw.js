@@ -1,5 +1,5 @@
 const CACHE_NAME = "image-resizer-cache-v1";
-const CORE_ASSETS = ["/", "/manifest.webmanifest"];
+const CORE_ASSETS = ["/", "/manifest.webmanifest", "/opengraph-image", "/twitter-image"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

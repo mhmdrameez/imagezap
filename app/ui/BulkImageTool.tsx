@@ -187,6 +187,11 @@ function downloadBlob(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
 
+type InstallPromptEvent = Event & {
+  prompt?: () => Promise<void>;
+  userChoice?: Promise<unknown>;
+};
+
 export default function BulkImageTool() {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -207,6 +212,8 @@ export default function BulkImageTool() {
 
   const [cropFor, setCropFor] = useState<SourceItem | null>(null);
   const [showOfflineHint, setShowOfflineHint] = useState(true);
+  const [installPromptEvent, setInstallPromptEvent] = useState<InstallPromptEvent | null>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   const sizeBefore = useMemo(() => sources.reduce((sum, s) => sum + s.size, 0), [sources]);
   const sizeAfter = useMemo(() => outputs.reduce((sum, o) => sum + o.size, 0), [outputs]);
@@ -217,6 +224,21 @@ export default function BulkImageTool() {
       for (const o of outputs) URL.revokeObjectURL(o.url);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handler = (evt: InstallPromptEvent) => {
+      evt.preventDefault?.();
+      setInstallPromptEvent(evt);
+      setShowInstallBanner(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+    };
   }, []);
 
   function clearAll() {
@@ -345,6 +367,48 @@ export default function BulkImageTool() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-950 dark:bg-black dark:text-zinc-50">
       <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+        {showInstallBanner && installPromptEvent && (
+          <div className="mb-4 overflow-hidden rounded-2xl bg-indigo-600 text-xs text-indigo-50 shadow sm:text-sm">
+            <div className="flex items-start gap-3 px-3 py-2 sm:px-4 sm:py-3">
+              <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-indigo-200 sm:h-2.5 sm:w-2.5" />
+              <div className="flex-1">
+                <p className="font-semibold">Install this app</p>
+                <p className="mt-0.5 text-indigo-100">
+                  Add this tool to your home screen for faster access and full offline use.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await installPromptEvent.prompt();
+                      await installPromptEvent.userChoice;
+                    } catch {
+                      // ignore
+                    }
+                    setShowInstallBanner(false);
+                    setInstallPromptEvent(null);
+                  }}
+                  className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-800 hover:bg-white"
+                >
+                  Install
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowInstallBanner(false);
+                    setInstallPromptEvent(null);
+                  }}
+                  className="rounded-full px-2 py-1 text-indigo-100/80 hover:bg-indigo-500/40 hover:text-white"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {showOfflineHint && (
           <div className="mb-4 overflow-hidden rounded-2xl bg-sky-600 text-xs text-sky-50 shadow sm:text-sm">
             <div className="flex items-start gap-3 px-3 py-2 sm:px-4 sm:py-3">
