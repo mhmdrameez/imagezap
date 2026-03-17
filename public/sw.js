@@ -33,12 +33,30 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // Network-first for navigation and API
-  if (request.mode === "navigate" || url.pathname.startsWith("/api/")) {
+  // For navigations, prefer cached shell so the app opens offline immediately,
+  // then update it in the background when online.
+  if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() =>
-        caches.match(request).then((res) => res || caches.match("/")),
-      ),
+      caches.match(request).then((cached) => {
+        if (cached) {
+          // Update in background, but don't block the response on it.
+          fetch(request)
+            .then((response) => {
+              const copy = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            })
+            .catch(() => undefined);
+          return cached;
+        }
+
+        return fetch(request)
+          .then((response) => {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            return response;
+          })
+          .catch(() => caches.match("/") || Response.error());
+      }),
     );
     return;
   }
