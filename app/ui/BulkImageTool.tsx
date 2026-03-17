@@ -381,9 +381,16 @@ export default function BulkImageTool() {
                 <button
                   type="button"
                   onClick={async () => {
+                    if (!installPromptEvent || !installPromptEvent.prompt) {
+                      setShowInstallBanner(false);
+                      setInstallPromptEvent(null);
+                      return;
+                    }
                     try {
                       await installPromptEvent.prompt();
-                      await installPromptEvent.userChoice;
+                      if (installPromptEvent.userChoice) {
+                        await installPromptEvent.userChoice;
+                      }
                     } catch {
                       // ignore
                     }
